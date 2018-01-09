@@ -1,0 +1,28 @@
+version: 0.0
+os: linux
+files:
+   - source: /web
+     destination: /var/www/html
+permissions:
+   - object: /var/www/html
+     pattern: "**"
+     owner: root
+     group: root
+     mode: 755
+     type:
+       - file
+hooks:
+   ApplicationStop:
+    - location: lb_scripts/deregister_from_elb.sh
+      runas: ec2-user
+   BeforeInstall:
+    - location: httpd_scripts/install_apache.sh
+      runas: ec2-user
+    - location: httpd_scripts/start_apache.sh
+      runas: ec2-user
+   AfterInstall:
+    - location: httpd_scripts/restart_apache.sh
+      runas: ec2-user
+   ApplicationStart:
+    - location: lb_scripts/register_with_elb.sh
+      runas: ec2-user
